@@ -6,9 +6,15 @@ A professional investment platform where investors purchase Domenico Coins (DMC)
 
 ---
 
-## 🌐 Live Demo
+## 🌐 Live Production Deployment
 
-**Platform URL**: https://3000-idl5teizbrlahlbtjh8yw-d0b9e1e2.sandbox.novita.ai
+**🚀 LIVE URL**: https://domenico-coins.dominique-dejonghe.workers.dev  
+**📊 API Stats**: https://domenico-coins.dominique-dejonghe.workers.dev/api/stats  
+**💾 GitHub Repo**: https://github.com/dominique-dejonghe/domenico  
+
+**Deployment Status**: ✅ **LIVE** on Cloudflare Workers  
+**Last Updated**: November 29, 2025  
+**Version**: Phase 3 Complete (Marketplace + MLM)
 
 ---
 
@@ -101,17 +107,21 @@ EXAMPLE:
 
 ---
 
-## 📊 Current Demo Statistics
+## 📊 Current Platform Statistics (Phase 3)
 
-**Based on seed data showing realistic growth:**
+**Live demo data from production deployment:**
 
-- **Current DMC Value**: €170.00 (1,600% ROI from €10 base!)
-- **Total Investors**: 3 demo investors
-- **Coins Outstanding**: 100 DMC
-- **Completed Projects**: 3
-- **Total Profit Generated**: €20,000
-- **Distributed to Investors**: €16,000 (80%)
-- **Dominique Earnings**: €4,000 (20%)
+- **Current DMC Value**: €197.07 (performance-based pricing)
+- **Total Investors**: 4 active investors
+- **Coins Outstanding**: 50 DMC
+- **Completed Projects**: 2 (StakeWise V3, EV Charger Platform)
+- **Total Profit Generated**: €31,000
+- **Distributed to Investors**: €21,700 (70% to investors, 15% to MLM pool, 15% to admin)
+- **MLM Commission Pool**: €4,350
+
+**Featured Projects:**
+1. **StakeWise V3 Integration** (FinTech) - €35k target, 12-20% ROI
+2. **EV Charger Management Platform** (SaaS) - €5k target, 6-12% ROI
 
 ### **Demo Projects**
 
@@ -168,11 +178,14 @@ EXAMPLE:
 
 ## 💻 Technical Stack
 
-- **Backend**: Hono (Cloudflare Workers)
-- **Database**: Cloudflare D1 (SQLite)
-- **Frontend**: Vanilla JavaScript + TailwindCSS
+- **Backend**: Hono (Cloudflare Workers/Pages)
+- **Database**: Cloudflare D1 (SQLite) - for Pages deployment
+- **Frontend**: Vanilla JavaScript + TailwindCSS + FontAwesome
 - **Charts**: Chart.js
-- **Deployment**: Cloudflare Pages
+- **Deployment**: Cloudflare Workers (current) / Pages (for full DB features)
+- **Build Tool**: Vite
+- **Version Control**: Git + GitHub
+- **Process Manager**: PM2 (sandbox development)
 
 ---
 
@@ -280,12 +293,22 @@ npm run db:reset
 - [x] Profit distribution
 - [x] Buyback system
 
-### **Phase 2: MLM Enhancement** (Ready when you are)
-- [ ] Referral system (3 levels: 10%/3%/2%)
-- [ ] Commission tracking
-- [ ] Network visualization
-- [ ] Rank system (Associate → Executive)
-- [ ] Viral growth mechanics
+### **Phase 2: MLM Enhancement** ✅ **COMPLETED**
+- [x] Referral system (3 levels: 10%/3%/2%)
+- [x] Commission tracking and auto-calculation
+- [x] Network visualization (referral tree)
+- [x] Rank system (Associate → Executive)
+- [x] Viral growth mechanics with bonuses
+- [x] Re-investment bonus system (+20% coins)
+
+### **Phase 3: Project Marketplace** ✅ **COMPLETED**
+- [x] Project-specific investments (instead of general coin pool)
+- [x] Minimum/maximum investment thresholds per project
+- [x] Real-time project funding progress
+- [x] Portfolio breakdown per project with individual ROI
+- [x] Service redemption marketplace (10-100 DMC tiers)
+- [x] Dynamic coin value based on portfolio performance
+- [x] Revenue distribution system (80% investors, 20% admin)
 
 ### **Phase 3: Scale & Legal**
 - [ ] Real payment gateway (Mollie/Stripe)
