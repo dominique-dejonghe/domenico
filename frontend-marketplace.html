@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domenico Marketplace - Invest in AI Projects</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .coin-logo {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e3a8a 100%);
+        border: 4px solid #1e40af;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 24px;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      }
+      .project-card {
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+      .project-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      }
+      .funding-bar {
+        transition: width 1s ease-out;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.6);
+      }
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .risk-low { background: #dcfce7; color: #166534; }
+      .risk-medium { background: #fef3c7; color: #92400e; }
+      .risk-high { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-xl sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="coin-logo">DMC</div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Domenico Marketplace</h1>
+                        <p class="text-sm opacity-90">Project-Specific AI Investment Platform</p>
+                    </div>
+                </div>
+                <div id="user-nav" class="hidden">
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <div class="text-xs opacity-80">Logged in as</div>
+                            <div id="nav-user-name" class="font-bold"></div>
+                        </div>
+                        <div id="nav-dmc-balance" class="bg-white bg-opacity-20 px-4 py-2 rounded-lg font-bold">
+                            0 DMC
+                        </div>
+                        <div class="bg-white text-blue-900 px-4 py-2 rounded-lg font-bold" id="nav-role-badge"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Login Section -->
+        <div id="login-section" class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-lg shadow-xl p-8 mb-8 text-center">
+                <div class="coin-logo mx-auto mb-6"></div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">
+                    Invest in Dominique's AI Projects
+                </h2>
+                <p class="text-gray-600 mb-6">
+                    Choose which AI/Software projects to fund. Get direct ROI from project profits. 
+                    Redeem DMC for custom development services.
+                </p>
+                
+                <!-- Live Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="public-stats">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-900" id="stat-coin-value">€10.00</div>
+                        <div class="text-sm text-gray-600">DMC Value</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-green-900" id="stat-investors">0</div>
+                        <div class="text-sm text-gray-600">Investors</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-900" id="stat-projects">0</div>
+                        <div class="text-sm text-gray-600">Projects</div>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-orange-900" id="stat-funding">€0</div>
+                        <div class="text-sm text-gray-600">Total Funded</div>
+                    </div>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Get Started</h3>
+                    <div class="space-y-4">
+                        <input type="email" id="login-email" placeholder="Your email" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="login-name" placeholder="Your name" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <button onclick="login()" 
+                                class="w-full gradient-bg text-white font-bold py-3 rounded-lg hover:opacity-90 transition">
+                            Sign In / Register
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App (hidden until login) -->
+        <div id="app" class="hidden">
+            <!-- Tabbed Navigation -->
+            <div class="bg-white rounded-lg shadow-xl mb-8">
+                <div class="flex border-b overflow-x-auto" id="main-tabs">
+                    <!-- Tabs will be loaded dynamically based on role -->
+                </div>
+                
+                <!-- Tab Content -->
+                <div class="p-6">
+                    <!-- Marketplace Tab -->
+                    <div id="tab-marketplace" class="tab-content">
+                        <div class="mb-6">
+                            <h2 class="text-3xl font-bold mb-2">
+                                <i class="fas fa-store mr-2 text-blue-600"></i>
+                                Project Marketplace
+                            </h2>
+                            <p class="text-gray-600">Browse and invest in specific AI/Software projects. Each project has minimum investment thresholds and expected ROI targets.</p>
+                        </div>
+                        
+                        <!-- Project Grid -->
+                        <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Projects will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Portfolio Tab -->
+                    <div id="tab-portfolio" class="tab-content">
+                        <div class="mb-6">
+                            <h2 class="text-3xl font-bold mb-2">
+                                <i class="fas fa-briefcase mr-2 text-green-600"></i>
+                                My Portfolio
+                            </h2>
+                            <p class="text-gray-600">Your investments across all projects with real-time ROI tracking.</p>
+                        </div>
+                        
+                        <div id="portfolio-content"></div>
+                    </div>
+
+                    <!-- Services Tab -->
+                    <div id="tab-services" class="tab-content">
+                        <div class="mb-6">
+                            <h2 class="text-3xl font-bold mb-2">
+                                <i class="fas fa-gift mr-2 text-purple-600"></i>
+                                Redeem Services
+                            </h2>
+                            <p class="text-gray-600">Exchange your DMC for custom AI/Software development services.</p>
+                        </div>
+                        
+                        <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Service tiers will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Admin Tab -->
+                    <div id="tab-admin" class="tab-content">
+                        <div class="mb-6">
+                            <h2 class="text-3xl font-bold mb-2">
+                                <i class="fas fa-user-shield mr-2 text-red-600"></i>
+                                Admin Panel
+                            </h2>
+                        </div>
+                        
+                        <div id="admin-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Investment Modal -->
+    <div id="invest-modal" class="modal">
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full m-4 max-h-screen overflow-y-auto">
+            <div class="gradient-bg text-white p-6 rounded-t-lg">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-2xl font-bold" id="modal-project-name">Project Name</h3>
+                        <p class="opacity-90" id="modal-project-category">Category</p>
+                    </div>
+                    <button onclick="closeInvestModal()" class="text-white hover:text-gray-200">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div id="modal-project-details" class="mb-6">
+                    <!-- Project details will be loaded here -->
+                </div>
+                
+                <div class="border-t pt-6">
+                    <h4 class="font-bold text-lg mb-4">Investment Amount</h4>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Your DMC Balance:</span>
+                            <span class="font-bold" id="modal-user-balance">0 DMC</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Current DMC Value:</span>
+                            <span class="font-bold" id="modal-coin-value">€0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block font-medium mb-2">Amount to Invest (DMC)</label>
+                        <input type="number" id="invest-amount" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                               placeholder="Enter DMC amount" min="1">
+                        <div class="flex justify-between text-sm mt-2">
+                            <span id="invest-min-warning" class="text-gray-500"></span>
+                            <span id="invest-eur-value" class="text-gray-700 font-medium">= €0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div id="invest-risk-warning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
+                            <div class="text-sm text-yellow-800">
+                                <p class="font-bold mb-1">Investment Risk Disclosure</p>
+                                <p>Projects may not deliver expected returns. Past performance doesn't guarantee future results. Only invest what you can afford to lose.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="confirmInvestment()" 
+                            class="w-full gradient-bg text-white font-bold py-4 rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Confirm Investment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Redemption Modal -->
+    <div id="redeem-modal" class="modal">
+        <div class="bg-white rounded-lg shadow-2xl max-w-xl w-full m-4">
+            <div class="bg-purple-600 text-white p-6 rounded-t-lg">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-2xl font-bold" id="redeem-tier-name">Service Tier</h3>
+                        <p class="opacity-90" id="redeem-tier-description">Description</p>
+                    </div>
+                    <button onclick="closeRedeemModal()" class="text-white hover:text-gray-200">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-6">
+                    <label class="block font-medium mb-2">Project Title</label>
+                    <input type="text" id="redeem-title" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" 
+                           placeholder="E.g., Customer Portal for SaaS">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block font-medium mb-2">Project Description</label>
+                    <textarea id="redeem-description" rows="4"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" 
+                              placeholder="Describe what you want built..."></textarea>
+                </div>
+                
+                <div class="bg-purple-50 p-4 rounded-lg mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold">DMC Cost:</span>
+                        <span class="font-bold text-purple-600" id="redeem-cost">0 DMC</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Your Balance:</span>
+                        <span id="redeem-balance">0 DMC</span>
+                    </div>
+                </div>
+                
+                <button onclick="confirmRedemption()" 
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-lg transition">
+                    <i class="fas fa-magic mr-2"></i>
+                    Request Service
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script>
+      let currentUser = null;
+      let allProjects = [];
+      let currentCoinValue = 10;
+      let selectedProject = null;
+      let selectedTier = null;
+      
+      // Load public stats on page load
+      loadPublicStats();
+      
+      async function loadPublicStats() {
+        try {
+          const response = await axios.get('/api/stats');
+          const stats = response.data;
+          currentCoinValue = stats.current_coin_value;
+          
+          document.getElementById('stat-coin-value').textContent = '€' + currentCoinValue.toFixed(2);
+          document.getElementById('stat-investors').textContent = stats.total_investors || 0;
+          document.getElementById('stat-projects').textContent = stats.completed_projects || 0;
+          
+          // Get total funding from all projects
+          const projectsResponse = await axios.get('/api/projects');
+          const totalFunding = projectsResponse.data.reduce((sum, p) => sum + (p.current_funding_eur || 0), 0);
+          document.getElementById('stat-funding').textContent = '€' + totalFunding.toFixed(0);
+        } catch (error) {
+          console.error('Failed to load stats:', error);
+        }
+      }
+      
+      async function login() {
+        const email = document.getElementById('login-email').value;
+        const name = document.getElementById('login-name').value;
+        
+        if (!email) {
+          alert('Please enter your email');
+          return;
+        }
+        
+        try {
+          const response = await axios.post('/api/auth/login', { email, name });
+          currentUser = response.data.user;
+          
+          document.getElementById('login-section').classList.add('hidden');
+          document.getElementById('app').classList.remove('hidden');
+          document.getElementById('user-nav').classList.remove('hidden');
+          document.getElementById('nav-user-name').textContent = currentUser.name;
+          
+          // Load appropriate interface based on role
+          loadTabbedInterface();
+          loadHoldings();
+        } catch (error) {
+          alert('Login failed: ' + error.message);
+        }
+      }
+      
+      async function loadHoldings() {
+        try {
+          const response = await axios.get('/api/investor/' + currentUser.id + '/portfolio');
+          const holding = response.data;
+          document.getElementById('nav-dmc-balance').textContent = holding.coins_owned.toFixed(2) + ' DMC';
+        } catch (error) {
+          document.getElementById('nav-dmc-balance').textContent = '0 DMC';
+        }
+      }
+      
+      function loadTabbedInterface() {
+        const tabs = [];
+        
+        // All users see Marketplace
+        tabs.push({ id: 'marketplace', icon: 'store', label: 'Marketplace' });
+        
+        if (currentUser.role === 'investor' || currentUser.role === 'admin') {
+          tabs.push({ id: 'portfolio', icon: 'briefcase', label: 'Portfolio' });
+          tabs.push({ id: 'services', icon: 'gift', label: 'Services' });
+        }
+        
+        if (currentUser.role === 'admin') {
+          tabs.push({ id: 'admin', icon: 'user-shield', label: 'Admin' });
+        }
+        
+        const tabsHTML = tabs.map((tab, i) => `
+          <button onclick="switchTab('${tab.id}')" 
+                  id="btn-tab-${tab.id}" 
+                  class="flex-1 py-4 px-6 font-semibold ${i === 0 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}">
+            <i class="fas fa-${tab.icon} mr-2"></i>${tab.label}
+          </button>
+        `).join('');
+        
+        document.getElementById('main-tabs').innerHTML = tabsHTML;
+        
+        // Show first tab
+        switchTab(tabs[0].id);
+      }
+      
+      function switchTab(tabId) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
+          btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+          btn.classList.add('text-gray-600');
+        });
+        
+        // Show selected tab
+        document.getElementById('tab-' + tabId).classList.add('active');
+        const btn = document.getElementById('btn-tab-' + tabId);
+        btn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        btn.classList.remove('text-gray-600');
+        
+        // Load tab content
+        if (tabId === 'marketplace') loadMarketplace();
+        else if (tabId === 'portfolio') loadPortfolio();
+        else if (tabId === 'services') loadServices();
+        else if (tabId === 'admin') loadAdmin();
+      }
+      
+      async function loadMarketplace() {
+        try {
+          const response = await axios.get('/api/projects');
+          allProjects = response.data.filter(p => p.is_featured === 1 || p.status === 'funding' || p.status === 'active');
+          
+          const html = allProjects.map(p => {
+            const fundingPct = p.funding_percentage || 0;
+            const riskClass = p.risk_level === 'low' ? 'risk-low' : p.risk_level === 'high' ? 'risk-high' : 'risk-medium';
+            
+            return `
+              <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden" onclick="openInvestModal(${p.id})">
+                <div class="p-6">
+                  <div class="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 class="text-xl font-bold mb-1">${p.name}</h3>
+                      <p class="text-sm text-gray-600">
+                        <i class="fas fa-${p.category_icon || 'folder'} mr-1"></i>
+                        ${p.category_name || p.category}
+                      </p>
+                    </div>
+                    <span class="badge ${riskClass}">${p.risk_level}</span>
+                  </div>
+                  
+                  <p class="text-gray-600 text-sm mb-4 line-clamp-2">${p.description || 'No description'}</p>
+                  
+                  <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-2">
+                      <span class="text-gray-600">Funding Progress</span>
+                      <span class="font-bold">${fundingPct}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                      <div class="funding-bar bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full" 
+                           style="width: ${Math.min(fundingPct, 100)}%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>€${(p.current_funding_eur || 0).toLocaleString()}</span>
+                      <span>Target: €${(p.target_capital_eur || 0).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                    <div class="bg-green-50 p-3 rounded">
+                      <div class="text-gray-600">Target ROI</div>
+                      <div class="font-bold text-green-700">${p.expected_return_target || 0}%</div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded">
+                      <div class="text-gray-600">Min. Invest</div>
+                      <div class="font-bold text-blue-700">€${(p.min_investment_eur || 0).toLocaleString()}</div>
+                    </div>
+                  </div>
+                  
+                  <button class="w-full gradient-bg text-white font-bold py-3 rounded-lg hover:opacity-90 transition">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    Invest Now
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          document.getElementById('projects-grid').innerHTML = html || '<p class="text-gray-500 col-span-3">No projects available</p>';
+        } catch (error) {
+          console.error('Failed to load projects:', error);
+        }
+      }
+      
+      async function openInvestModal(projectId) {
+        selectedProject = allProjects.find(p => p.id === projectId);
+        if (!selectedProject) return;
+        
+        // Update modal with project details
+        document.getElementById('modal-project-name').textContent = selectedProject.name;
+        document.getElementById('modal-project-category').textContent = selectedProject.category_name || selectedProject.category;
+        
+        const riskClass = selectedProject.risk_level === 'low' ? 'risk-low' : selectedProject.risk_level === 'high' ? 'risk-high' : 'risk-medium';
+        
+        document.getElementById('modal-project-details').innerHTML = `
+          <div class="space-y-4">
+            <div>
+              <h5 class="font-bold mb-2">Project Description</h5>
+              <p class="text-gray-600">${selectedProject.description || 'No description available'}</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <span class="text-gray-600 text-sm">Expected ROI Range</span>
+                <div class="font-bold text-green-600">${selectedProject.expected_return_min}% - ${selectedProject.expected_return_max}%</div>
+              </div>
+              <div>
+                <span class="text-gray-600 text-sm">Risk Level</span>
+                <div><span class="badge ${riskClass}">${selectedProject.risk_level}</span></div>
+              </div>
+              <div>
+                <span class="text-gray-600 text-sm">Target Capital</span>
+                <div class="font-bold">€${(selectedProject.target_capital_eur || 0).toLocaleString()}</div>
+              </div>
+              <div>
+                <span class="text-gray-600 text-sm">Current Funding</span>
+                <div class="font-bold">€${(selectedProject.current_funding_eur || 0).toLocaleString()}</div>
+              </div>
+            </div>
+            
+            ${selectedProject.comparable_projects ? `
+              <div>
+                <span class="text-gray-600 text-sm">Comparable Projects</span>
+                <div class="flex flex-wrap gap-2 mt-1">
+                  ${JSON.parse(selectedProject.comparable_projects).map(c => `
+                    <span class="bg-gray-100 px-2 py-1 rounded text-sm">${c}</span>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        
+        // Update balance displays
+        try {
+          const response = await axios.get('/api/investor/' + currentUser.id + '/portfolio');
+          document.getElementById('modal-user-balance').textContent = response.data.coins_owned.toFixed(2) + ' DMC';
+        } catch {
+          document.getElementById('modal-user-balance').textContent = '0 DMC';
+        }
+        
+        document.getElementById('modal-coin-value').textContent = '€' + currentCoinValue.toFixed(2);
+        document.getElementById('invest-min-warning').textContent = `Min: €${selectedProject.min_investment_eur}`;
+        
+        // Show modal
+        document.getElementById('invest-modal').classList.add('active');
+        
+        // Auto-calculate EUR value on input
+        document.getElementById('invest-amount').oninput = function() {
+          const dmc = parseFloat(this.value) || 0;
+          const eur = dmc * currentCoinValue;
+          document.getElementById('invest-eur-value').textContent = '= €' + eur.toFixed(2);
+        };
+      }
+      
+      function closeInvestModal() {
+        document.getElementById('invest-modal').classList.remove('active');
+        document.getElementById('invest-amount').value = '';
+      }
+      
+      async function confirmInvestment() {
+        const dmcAmount = parseFloat(document.getElementById('invest-amount').value);
+        
+        if (!dmcAmount || dmcAmount <= 0) {
+          alert('Please enter a valid amount');
+          return;
+        }
+        
+        const eurAmount = dmcAmount * currentCoinValue;
+        
+        if (selectedProject.min_investment_eur && eurAmount < selectedProject.min_investment_eur) {
+          alert(`Minimum investment is €${selectedProject.min_investment_eur}`);
+          return;
+        }
+        
+        if (!confirm(`Invest ${dmcAmount} DMC (€${eurAmount.toFixed(2)}) in ${selectedProject.name}?`)) {
+          return;
+        }
+        
+        try {
+          const response = await axios.post('/api/projects/' + selectedProject.id + '/invest', {
+            userId: currentUser.id,
+            dmcAmount: dmcAmount
+          });
+          
+          alert(response.data.message);
+          closeInvestModal();
+          loadHoldings();
+          loadMarketplace();
+          
+          // Switch to portfolio tab to see the investment
+          switchTab('portfolio');
+        } catch (error) {
+          alert('Investment failed: ' + (error.response?.data?.error || error.message));
+        }
+      }
+      
+      async function loadPortfolio() {
+        try {
+          // Load portfolio summary
+          const summaryResponse = await axios.get('/api/investor/' + currentUser.id + '/portfolio');
+          const summary = summaryResponse.data;
+          
+          // Load project-specific holdings
+          const projectsResponse = await axios.get('/api/investor/' + currentUser.id + '/portfolio/projects');
+          const portfolio = projectsResponse.data.portfolio || [];
+          
+          let html = `
+            <!-- Portfolio Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div class="bg-blue-50 p-6 rounded-lg">
+                <div class="text-3xl font-bold text-blue-900">${summary.coins_owned.toFixed(2)}</div>
+                <div class="text-sm text-gray-600">Total DMC Owned</div>
+              </div>
+              <div class="bg-green-50 p-6 rounded-lg">
+                <div class="text-3xl font-bold text-green-900">€${summary.current_worth.toFixed(2)}</div>
+                <div class="text-sm text-gray-600">Current Value</div>
+              </div>
+              <div class="bg-purple-50 p-6 rounded-lg">
+                <div class="text-3xl font-bold text-purple-900">€${summary.unrealized_gain.toFixed(2)}</div>
+                <div class="text-sm text-gray-600">Total Gain</div>
+              </div>
+              <div class="bg-orange-50 p-6 rounded-lg">
+                <div class="text-3xl font-bold text-orange-900">${summary.gain_percentage > 0 ? '+' : ''}${summary.gain_percentage.toFixed(1)}%</div>
+                <div class="text-sm text-gray-600">Total ROI</div>
+              </div>
+            </div>
+            
+            <!-- Project Breakdown -->
+            <h3 class="text-2xl font-bold mb-4">Holdings by Project</h3>
+          `;
+          
+          if (portfolio.length === 0) {
+            html += '<p class="text-gray-500">No project investments yet. Visit the Marketplace to start investing!</p>';
+          } else {
+            html += '<div class="space-y-4">';
+            
+            portfolio.forEach(p => {
+              const roi = p.roi || 0;
+              const roiClass = roi > 0 ? 'text-green-600' : 'text-gray-500';
+              
+              html += `
+                <div class="bg-white border rounded-lg p-6">
+                  <div class="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 class="text-xl font-bold">${p.projectName}</h4>
+                      <p class="text-sm text-gray-600">${p.category}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold ${
+                      p.projectStatus === 'completed' ? 'bg-green-100 text-green-800' :
+                      p.projectStatus === 'active' ? 'bg-blue-100 text-blue-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }">
+                      ${p.projectStatus.toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <div class="text-gray-600 text-sm">DMC Invested</div>
+                      <div class="font-bold">${p.dmcInvested.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div class="text-gray-600 text-sm">EUR Invested</div>
+                      <div class="font-bold">€${p.eurInvested.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div class="text-gray-600 text-sm">Revenue Earned</div>
+                      <div class="font-bold ${roiClass}">€${(p.revenue || 0).toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div class="text-gray-600 text-sm">ROI</div>
+                      <div class="font-bold ${roiClass}">${roi > 0 ? '+' : ''}${roi.toFixed(1)}%</div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            });
+            
+            html += '</div>';
+          }
+          
+          document.getElementById('portfolio-content').innerHTML = html;
+        } catch (error) {
+          console.error('Failed to load portfolio:', error);
+          document.getElementById('portfolio-content').innerHTML = '<p class="text-red-500">Failed to load portfolio</p>';
+        }
+      }
+      
+      async function loadServices() {
+        try {
+          const response = await axios.get('/api/services');
+          const tiers = response.data;
+          
+          const html = tiers.map(tier => `
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+              <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 text-center">
+                <h3 class="text-2xl font-bold mb-2">${tier.name}</h3>
+                <div class="text-4xl font-bold mb-2">${tier.dmc_cost} DMC</div>
+                <p class="text-sm opacity-90">${tier.service_hours} service hours</p>
+              </div>
+              
+              <div class="p-6">
+                <p class="text-gray-600 mb-4">${tier.description}</p>
+                
+                <div class="space-y-2 mb-6">
+                  ${JSON.parse(tier.features).map(f => `
+                    <div class="flex items-start">
+                      <i class="fas fa-check text-purple-600 mr-2 mt-1"></i>
+                      <span class="text-sm">${f}</span>
+                    </div>
+                  `).join('')}
+                </div>
+                
+                <button onclick="openRedeemModal(${tier.id})" 
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition">
+                  Redeem Service
+                </button>
+              </div>
+            </div>
+          `).join('');
+          
+          document.getElementById('services-grid').innerHTML = html;
+        } catch (error) {
+          console.error('Failed to load services:', error);
+        }
+      }
+      
+      async function openRedeemModal(tierId) {
+        try {
+          const response = await axios.get('/api/services');
+          selectedTier = response.data.find(t => t.id === tierId);
+          
+          if (!selectedTier) return;
+          
+          document.getElementById('redeem-tier-name').textContent = selectedTier.name;
+          document.getElementById('redeem-tier-description').textContent = selectedTier.description;
+          document.getElementById('redeem-cost').textContent = selectedTier.dmc_cost + ' DMC';
+          
+          // Load user balance
+          const holdingResponse = await axios.get('/api/investor/' + currentUser.id + '/portfolio');
+          document.getElementById('redeem-balance').textContent = holdingResponse.data.coins_owned.toFixed(2) + ' DMC';
+          
+          document.getElementById('redeem-modal').classList.add('active');
+        } catch (error) {
+          alert('Failed to load service details');
+        }
+      }
+      
+      function closeRedeemModal() {
+        document.getElementById('redeem-modal').classList.remove('active');
+        document.getElementById('redeem-title').value = '';
+        document.getElementById('redeem-description').value = '';
+      }
+      
+      async function confirmRedemption() {
+        const title = document.getElementById('redeem-title').value;
+        const description = document.getElementById('redeem-description').value;
+        
+        if (!title || !description) {
+          alert('Please fill in all fields');
+          return;
+        }
+        
+        if (!confirm(`Redeem ${selectedTier.dmc_cost} DMC for ${selectedTier.name} service?`)) {
+          return;
+        }
+        
+        try {
+          const response = await axios.post('/api/services/redeem', {
+            userId: currentUser.id,
+            tierId: selectedTier.id,
+            projectTitle: title,
+            projectDescription: description
+          });
+          
+          alert(response.data.message);
+          closeRedeemModal();
+          loadHoldings();
+        } catch (error) {
+          alert('Redemption failed: ' + (error.response?.data?.error || error.message));
+        }
+      }
+      
+      async function loadAdmin() {
+        // Admin panel implementation - simplified for now
+        document.getElementById('admin-content').innerHTML = `
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p class="text-yellow-800">
+              <i class="fas fa-tools mr-2"></i>
+              Admin panel is under construction. Use the old interface for project management.
+            </p>
+          </div>
+        `;
+      }
+    </script>
+</body>
+</html>

@@ -859,6 +859,15 @@ app.get('/api/admin/marketplace/analytics', async (c) => {
 // MAIN FRONTEND PAGE
 // ============================================
 
+// Marketplace route with new UI
+app.get('/marketplace', async (c) => {
+  // Read and serve the marketplace HTML
+  const marketplaceHTML = await Deno.readTextFile('./public/marketplace.html').catch(() => {
+    return '<h1>Marketplace loading...</h1><p>Please visit <a href="/">main page</a></p>'
+  })
+  return c.html(marketplaceHTML)
+})
+
 app.get('/', (c) => {
   return c.html(`
     <!DOCTYPE html>
