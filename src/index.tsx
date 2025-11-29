@@ -859,16 +859,34 @@ app.get('/api/admin/marketplace/analytics', async (c) => {
 // MAIN FRONTEND PAGE
 // ============================================
 
-// Marketplace route with new UI
-app.get('/marketplace', async (c) => {
-  // Read and serve the marketplace HTML
-  const marketplaceHTML = await Deno.readTextFile('./public/marketplace.html').catch(() => {
-    return '<h1>Marketplace loading...</h1><p>Please visit <a href="/">main page</a></p>'
-  })
-  return c.html(marketplaceHTML)
-})
+// ============================================
+// MAIN FRONTEND PAGE
+// ============================================
 
 app.get('/', (c) => {
+  // Serve the new marketplace HTML directly
+  return c.html(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=/static/marketplace.html">
+    <title>Redirecting to Domenico Marketplace...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+    <div class="text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Loading Domenico Marketplace...</h2>
+        <p class="text-gray-600">Redirecting you to the new platform...</p>
+        <p class="text-sm text-gray-500 mt-4">If not redirected, <a href="/static/marketplace.html" class="text-blue-600 underline">click here</a></p>
+    </div>
+</body>
+</html>`)
+})
+
+// Old interface (kept for backwards compatibility)
+app.get('/legacy', (c) => {
   return c.html(`
     <!DOCTYPE html>
     <html lang="en">
