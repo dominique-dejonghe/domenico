@@ -1,0 +1,10 @@
+name = "domenico-coins"
+main = "dist/_worker.js"
+compatibility_date = "2025-11-29"
+compatibility_flags = ["nodejs_compat"]
+
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "service-worker"
